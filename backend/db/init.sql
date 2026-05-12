@@ -1,0 +1,1 @@
+//script initialisation mysql

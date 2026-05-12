@@ -1,0 +1,33 @@
+{
+  "name": "clicktroc",
+  "version": "1.0.0",
+  "description": "Application web permettant aux utilisateurs de consulter et de rédiger des petites annonces. L’objectif est de proposer une interface permettant la consultation, la rédaction et la modification des annonces, le paiement des achats. Le site permettra une recherche ciblée par région et par rubrique d’annonce.",
+  "main": "backend/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon backend/app.js",
+    "backend": "nodemon backend/app.js",
+    "frontend": "npm run dev --prefix frontend",
+    "start": "concurrently \"npm run backend\" \"npm run frontend\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dorineco/ClickTroc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dorineco/ClickTroc/issues"
+  },
+  "homepage": "https://github.com/Dorineco/ClickTroc#readme",
+  "dependencies": {
+    "concurrently": "^9.2.1",
+    "config": "^4.4.1",
+    "login": "^0.8.0",
+    "mongodb": "^7.1.1",
+    "mongoose": "^9.4.1",
+    "mongosh": "^2.8.2",
+    "stripe": "^22.0.1"
+  }
+}
