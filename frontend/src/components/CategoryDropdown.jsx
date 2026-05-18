@@ -11,10 +11,10 @@ const CategoryDropdown = ({ categories, value, onChange }) => {
             <button
                 type="button"
                 onClick={() => setOpen(!open)}
-                className="border border-gray-200 rounded-full px-5 py-3 text-left bg-white flex justify-between items-center"
+                className="border border-gray-500 rounded-full px-6 py-2 text-xl text-left bg-white flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-gray-700"
             >
                 <span className={value ? "text-gray-800" : "text-gray-500"}>
-                    {selected ? selected.name : "Choisissez une rubrique"}
+                    {selected ? selected.name : "Rubrique"}
                 </span>
 
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

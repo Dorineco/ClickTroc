@@ -45,7 +45,7 @@ const ResetPassword = () => {
                 <h2 className="text-2xl font-semibold text-gray-700 mb-2 text-center">
                     Nouveau mot de passe
                 </h2>
-                <p className="text-sm text-gray-400 text-center mb-8">
+                <p className="text-xl text-gray-400 text-center mb-8">
                     Choisissez un nouveau mot de passe sécurisé.
                 </p>
 
@@ -55,14 +55,14 @@ const ResetPassword = () => {
                         <p className="text-green-600 font-medium">
                             Mot de passe réinitialisé avec succès !
                         </p>
-                        <p className="text-sm text-gray-400 mt-2">
+                        <p className="text-xl text-gray-400 mt-2">
                             Vous allez être redirigé vers l'accueil...
                         </p>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                         {error && (
-                            <p className="text-red-500 text-sm text-center">{error}</p>
+                            <p className="text-red-500 text-xl text-center">{error}</p>
                         )}
 
                         <input
@@ -72,7 +72,7 @@ const ResetPassword = () => {
                             value={form.password}
                             onChange={handleChange}
                             required
-                            className="border border-gray-200 rounded-full px-5 py-3 text-sm bg-gray-50 focus:outline-none focus:border-gray-400"
+                            className="border border-gray-200 rounded-full px-5 py-3 text-xl bg-gray-50 focus:outline-none focus:border-gray-400"
                         />
                         <input
                             type="password"
@@ -81,7 +81,7 @@ const ResetPassword = () => {
                             value={form.confirmPassword}
                             onChange={handleChange}
                             required
-                            className="border border-gray-200 rounded-full px-5 py-3 text-sm bg-gray-50 focus:outline-none focus:border-gray-400"
+                            className="border border-gray-200 rounded-full px-5 py-3 text-xl bg-gray-50 focus:outline-none focus:border-gray-400"
                         />
 
                         <button

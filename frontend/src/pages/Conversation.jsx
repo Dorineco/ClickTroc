@@ -74,7 +74,7 @@ const Conversation = () => {
                 {/* Messages */}
                 <div className="flex-1 flex flex-col gap-3 mb-6 overflow-y-auto max-h-[60vh]">
                     {messages.length === 0 ? (
-                        <p className="text-gray-400 text-sm text-center py-12">
+                        <p className="text-gray-400 text-xl text-center py-12">
                             Commencez la conversation !
                         </p>
                     ) : (
@@ -85,7 +85,7 @@ const Conversation = () => {
                                     key={msg._id}
                                     className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                                 >
-                                    <div className={`relative group max-w-xs lg:max-w-md px-4 py-3 rounded-2xl text-sm ${isMe
+                                    <div className={`relative group max-w-xs lg:max-w-md px-4 py-3 rounded-2xl text-xl ${isMe
                                         ? 'bg-gray-600 text-white rounded-br-none'
                                         : 'bg-white border border-gray-200 text-gray-700 rounded-bl-none'
                                         }`}>
@@ -118,12 +118,12 @@ const Conversation = () => {
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="Écrire un message..."
-                        className="flex-1 border border-gray-200 rounded-full px-5 py-3 text-sm bg-white focus:outline-none focus:border-gray-400"
+                        className="flex-1 border border-gray-200 rounded-full px-5 py-3 text-xl bg-white focus:outline-none focus:border-gray-400"
                     />
                     <button
                         type="submit"
                         disabled={!content.trim()}
-                        className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-full text-sm transition-colors disabled:opacity-50"
+                        className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-full text-xl transition-colors disabled:opacity-50"
                     >
                         Envoyer
                     </button>

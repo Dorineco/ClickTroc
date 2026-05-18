@@ -48,14 +48,14 @@ const CheckoutForm = ({ clientSecret, ad, transactionId }) => {
 
                 {ad && (
                     <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                        <p className="text-sm text-gray-600 font-medium">{ad.title}</p>
+                        <p className="text-xl text-gray-600 font-medium">{ad.title}</p>
                         <p className="text-lg font-bold text-gray-800 mt-1">{ad.price} €</p>
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     {error && (
-                        <p className="text-red-500 text-sm text-center">{error}</p>
+                        <p className="text-red-500 text-xl text-center">{error}</p>
                     )}
 
                     <div className="border border-gray-200 rounded-xl px-4 py-3 bg-gray-50">
@@ -86,7 +86,7 @@ const CheckoutForm = ({ clientSecret, ad, transactionId }) => {
                     <button
                         type="button"
                         onClick={() => navigate(-1)}
-                        className="text-sm text-gray-400 hover:text-gray-600 text-center"
+                        className="text-xl text-gray-400 hover:text-gray-600 text-center"
                     >
                         Annuler
                     </button>

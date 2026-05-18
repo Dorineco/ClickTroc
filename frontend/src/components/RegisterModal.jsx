@@ -17,6 +17,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const firstnameRef = useRef(null);
+    const RegisterStyle = "w-full border border-gray-200 rounded-full px-5 py-3 text-xl bg-gray-50 focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -32,8 +33,6 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
         }
 
         setLoading(true);
-
-
 
         try {
             await registerApi({
@@ -86,19 +85,19 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
             >
                 {/* Colonne gauche — formulaire */}
                 <div className="flex-1 p-10 flex flex-col justify-center">
-                    
+
                     <h2 className="text-2xl font-semibold text-gray-700 mb-8 text-center">
                         Créer son compte
                     </h2>
                     <button onClick={onClose} className="absolute right-6 text-gray-400 hover:text-gray-600">✕</button>
-                    
+
 
                     {error && (
-                        <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+                        <p className="text-red-500 text-xl text-center mb-4">{error}</p>
                     )}
 
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                        
+
                         <input
                             type="text"
                             name="firstname"
@@ -107,8 +106,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                             onChange={handleChange}
                             required
                             ref={firstnameRef}
-                            className="w-full border border-gray-200 rounded-full px-5 py-3 text-sm bg-gray-50
-                focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                            className={RegisterStyle}
                         />
                         <input
                             type="text"
@@ -117,8 +115,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                             value={form.lastname}
                             onChange={handleChange}
                             required
-                            className="w-full border border-gray-200 rounded-full px-5 py-3 text-sm bg-gray-50
-                focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                            className={RegisterStyle}
                         />
                         <input
                             type="email"
@@ -127,8 +124,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                             value={form.email}
                             onChange={handleChange}
                             required
-                            className="w-full border border-gray-200 rounded-full px-5 py-3 text-sm bg-gray-50
-                focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                            className={RegisterStyle}
                         />
                         <div className="relative">
                             <input
@@ -138,8 +134,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                                 value={form.password}
                                 onChange={handleChange}
                                 required
-                                className="w-full border border-gray-200 rounded-full px-5 py-3 text-sm bg-gray-50
-                focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                                className={RegisterStyle}
                             />
 
                             <button
@@ -164,8 +159,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                                 value={form.confirmPassword}
                                 onChange={handleChange}
                                 required
-                                className="w-full border border-gray-200 rounded-full px-5 py-3 text-sm bg-gray-50
-                focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                                className={RegisterStyle}
                             />
 
                             <button
@@ -187,13 +181,13 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 rounded-full transition-colors disabled:opacity-50 mt-2"
+                            className="bg-gray-600 hover:bg-gray-700 text-white text-xl font-medium py-3 rounded-full transition-colors disabled:opacity-50 mt-2"
                         >
                             {loading ? 'Création...' : 'Créer le compte'}
                         </button>
                     </form>
 
-                    <p className="text-sm text-center mt-6 text-gray-500">
+                    <p className="text-xl text-center mt-6 text-gray-500">
                         Vous avez un compte ?{' '}
                         <button
                             onClick={onSwitchToLogin}
@@ -201,14 +195,28 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                         >
                             Connectez-vous.
                         </button>
-                        
+
                     </p>
                 </div>
 
                 {/* Colonne droite — image */}
                 <div className="hidden md:flex w-72 relative items-center justify-center bg-gray-100 p-6">
+
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Fermer"
+                        className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center
+                        text-gray-400 hover:text-gray-700 hover:bg-gray-100
+                        focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500
+                        transition-colors"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                     <div className="rounded-2xl overflow-hidden w-full h-80 relative">
-                        
+
                         <img
                             src="/hero.jpg"
                             alt="Click&Troc"
@@ -216,10 +224,10 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                         />
                         <div className="absolute inset-0 bg-black/20 flex flex-col items-center justify-center text-white">
                             <span className="text-3xl font-bold">Click&amp;Troc</span>
-                            <span className="text-sm italic mt-1">le site des petites annonces locales</span>
+                            <span className="text-xl italic mt-1">le site des petites annonces locales</span>
                         </div>
 
-                        
+
                     </div>
                 </div>
             </div>

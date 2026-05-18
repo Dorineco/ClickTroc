@@ -1,5 +1,48 @@
 import AdsDAO from "../DAO/AdsDAO.js";
 import TownsDAO from '../DAO/TownsDAO.js';
+import GeocodingService from '../services/GeocodingService.js';
+
+// ============================================================
+// Validation des paramètres géographiques
+// Empêche toute injection SQL dans les expressions interpolées
+// ============================================================
+
+/**
+ * Parse et valide un float dans des bornes strictes.
+ * Retourne null si la valeur est absente, non numérique, ou hors bornes.
+ */
+function toSafeFloat(val, min, max) {
+    if (val === undefined || val === null || val === '') return null;
+    const n = parseFloat(val);
+    if (isNaN(n) || n < min || n > max) return null;
+    return n;
+}
+
+/**
+ * Valide les paramètres géographiques d'une requête de recherche.
+ * Retourne les valeurs assainies ou une erreur.
+ */
+function validateGeoParams(rawLat, rawLng, rawDistance) {
+    const searchLat  = toSafeFloat(rawLat,      -90,   90);
+    const searchLng  = toSafeFloat(rawLng,      -180,  180);
+    const distance   = toSafeFloat(rawDistance,  1,    500);
+
+    // Si des coords sont fournies, elles doivent être toutes valides
+    if ((rawLat || rawLng) && (!searchLat || !searchLng)) {
+        return { error: 'Coordonnées GPS invalides.' };
+    }
+
+    // Si une distance est fournie, elle doit être valide
+    if (rawDistance && !distance) {
+        return { error: 'Distance invalide (entre 1 et 500 km).' };
+    }
+
+    return { searchLat, searchLng, distance };
+}
+
+// ============================================================
+// Controllers
+// ============================================================
 
 export const getAll = async (req, res) => {
     try {
@@ -8,9 +51,7 @@ export const getAll = async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: "Erreur serveur" });
     }
-
 };
-
 
 export const getById = async (req, res) => {
     try {
@@ -25,24 +66,27 @@ export const getById = async (req, res) => {
 
 export const create = async (req, res) => {
     try {
-        // Trouver ou créer la ville
-        let town_id = null;
-        if (req.body.town_name) {
-            town_id = await AdsDAO.findOrCreateTown(req.body.town_name, req.body.postal_code);
-        }
-
-        // Récupérer les coordonnées de la ville
+        let town_id  = null;
         let latitude = null;
         let longitude = null;
-        if (town_id) {
-            const town = await TownsDAO.getById(town_id);
-            if (town) {
-                latitude = town.latitude;
-                longitude = town.longitude;
-            }
-        }
 
-        console.log('latitude:', latitude, 'longitude:', longitude);
+        if (req.body.town_name) {
+            const coords = await GeocodingService.geocodeCity(
+                req.body.town_name,
+                req.body.postal_code
+            );
+            if (coords) {
+                latitude  = coords.lat;
+                longitude = coords.lon;
+            }
+
+            town_id = await AdsDAO.findOrCreateTown(
+                req.body.town_name,
+                req.body.postal_code,
+                latitude,
+                longitude
+            );
+        }
 
         const adId = await AdsDAO.create({
             ...req.body,
@@ -68,11 +112,7 @@ export const create = async (req, res) => {
 export const update = async (req, res) => {
     try {
         const ad = await AdsDAO.update(Number(req.params.id), req.body);
-
-        if (!ad) {
-            return res.status(404).json({ error: "Introuvable" });
-        }
-
+        if (!ad) return res.status(404).json({ error: "Introuvable" });
         res.json(ad);
     } catch (err) {
         console.error(err);
@@ -91,42 +131,53 @@ export const remove = async (req, res) => {
     }
 };
 
-// Recherche
-
 export const search = async (req, res) => {
     try {
-        const { q, category_id, town_name, postal_code, min_price, max_price, distance, searchLat: rawLat, searchLng: rawLng, sortBy, page } = req.query;
+        const {
+            q, category_id, town_name, postal_code,
+            min_price, max_price,
+            searchLat: rawLat, searchLng: rawLng, distance: rawDistance,
+            sortBy, page
+        } = req.query;
 
-        const searchLat = rawLat ? parseFloat(rawLat) : null;
-        const searchLng = rawLng ? parseFloat(rawLng) : null;
+        // Validation stricte des paramètres géographiques
+        const geoValidation = validateGeoParams(rawLat, rawLng, rawDistance);
+        if (geoValidation.error) {
+            return res.status(400).json({ error: geoValidation.error });
+        }
 
-        if (town_name && distance) {
-            // Géocoder la ville recherchée
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(town_name + ' ' + (postal_code || ''))}&format=json&limit=1`,
-                { headers: { 'User-Agent': 'ClickTroc/1.0' } }
-            );
-            const data = await response.json();
-            if (data[0]) {
-                searchLat = parseFloat(data[0].lat);
-                searchLng = parseFloat(data[0].lon);
+        let { searchLat, searchLng, distance } = geoValidation;
+
+        // Géocodage à la volée si ville + distance sans coordonnées GPS
+        if (town_name && distance && !searchLat) {
+            const coords = await GeocodingService.geocodeSearch(town_name, postal_code);
+            if (coords) {
+                // On revalide les coords retournées par Nominatim par sécurité
+                searchLat = toSafeFloat(coords.lat, -90,  90);
+                searchLng = toSafeFloat(coords.lon, -180, 180);
             }
         }
 
-        const results = await AdsDAO.search({
+        const searchParams = {
             q,
-            category_id: category_id ? Number(category_id) : undefined,
-            town_name: town_name || undefined,
-            min_price: min_price ? Number(min_price) : undefined,
-            max_price: max_price ? Number(max_price) : undefined,
-            distance: distance ? Number(distance) : undefined,
-            searchLat: searchLat ? parseFloat(searchLat) : undefined,
-            searchLng: searchLng ? parseFloat(searchLng) : undefined,
+            category_id  : category_id ? Number(category_id) : undefined,
+            town_name    : town_name    || undefined,
+            min_price    : min_price    ? Number(min_price)   : undefined,
+            max_price    : max_price    ? Number(max_price)   : undefined,
+            distance     : distance     || undefined,
+            searchLat    : searchLat    || undefined,
+            searchLng    : searchLng    || undefined,
             sortBy,
-            page: page ? Number(page) : 1,
-            limit: 12,
-        });
+            page         : page ? Number(page) : 1,
+            limit        : 12,
+        };
 
+        let results = await AdsDAO.search(searchParams);
+
+        // Fallback SOUNDEX si aucun résultat avec un mot-clé
+        if (results.ads.length === 0 && q) {
+            results = await AdsDAO.searchFuzzy(searchParams);
+        }
 
         res.status(200).json(results);
     } catch (err) {
@@ -162,4 +213,3 @@ export const deleteImage = async (req, res) => {
         res.status(500).json({ error: 'Erreur serveur' });
     }
 };
-

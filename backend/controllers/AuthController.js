@@ -1,17 +1,6 @@
 import authService from "../services/authServices.js";
-import jwt from 'jsonwebtoken';
+import { accessCookieOptions, refreshCookieOptions, clearCookieOptions } from "../config/cookieOptions.js";
 
-const accessCookieOptions = {
-    httpOnly: true,
-    sameSite: 'strict',
-    maxAge: 15 * 60 * 1000, // 15 minutes
-};
-
-const refreshCookieOptions = {
-    httpOnly: true,
-    sameSite: 'strict',
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
-};
 
 const authController = {
     async register(req, res, next) {
@@ -25,8 +14,8 @@ const authController = {
                 town_id,
             });
 
-            res.cookie('accessToken', accessToken, accessCookieOptions);
-            res.cookie('refreshToken', refreshToken, refreshCookieOptions);
+            res.cookie("accessToken", accessToken, accessCookieOptions);
+            res.cookie("refreshToken", refreshToken, refreshCookieOptions);
             res.status(201).json({ message: "Compte créé avec succès." });
         } catch (err) {
             next(err);
@@ -35,34 +24,33 @@ const authController = {
 
     async login(req, res, next) {
         try {
-            console.log('login appelé');
             const { accessToken, refreshToken } = await authService.login(req.body);
-            res.cookie('accessToken', accessToken, accessCookieOptions);
-            res.cookie('refreshToken', refreshToken, refreshCookieOptions);
-            res.status(200).json({ message: 'Connecté.' });
+
+            res.cookie("accessToken", accessToken, accessCookieOptions);
+            res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+            res.status(200).json({ message: "Connecté." });
         } catch (err) {
-            console.error('erreur login:', err);
-            res.status(401).json({ error: err.message });
+            next(err);
         }
     },
 
+    async logout(req, res, next) {
+        try {
+            // Révoque le refresh token en base avant d'effacer les cookies
+            await authService.logout(req.cookies.refreshToken);
 
-    logout(req, res) {
-        res.clearCookie("token", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-        });
-        res.status(200).json({ message: "Déconnexion réussie." });
+            res.clearCookie("accessToken", clearCookieOptions);
+            res.clearCookie("refreshToken", clearCookieOptions);
+            res.status(200).json({ message: "Déconnexion réussie." });
+        } catch (err) {
+            next(err);
+        }
     },
 
     async forgotPassword(req, res, next) {
-
         try {
             const { email } = req.body;
-
             const message = await authService.forgotPassword(email);
-
             res.status(200).json({ message });
         } catch (err) {
             next(err);
@@ -75,41 +63,27 @@ const authController = {
             const { password } = req.body;
 
             await authService.resetPassword(token, password);
-
             res.status(200).json({ message: "Mot de passe réinitialisé avec succès." });
         } catch (err) {
             next(err);
         }
     },
 
-    async refresh(req, res) {
+    async refresh(req, res, next) { 
         try {
+            const oldRefreshToken = req.cookies.refreshToken;
+            if (!oldRefreshToken) return res.status(401).json({ error: "Non autorisé." });
 
-            const token = req.cookies.refreshToken;
+            // Rotation : génère un nouvel access ET un nouveau refresh token
+            const { accessToken, refreshToken } = await authService.refreshTokens(oldRefreshToken);
 
-            if (!token) return res.status(401).json({ error: 'Non autorisé.' });
-
-            const decoded = jwt.verify(token, process.env.REFRESH_SECRET);
-
-            const accessToken = jwt.sign(
-                { id: decoded.id },
-                process.env.SESSION_SECRET,
-                { expiresIn: '15m' }
-            );
-
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                sameSite: 'strict',
-                maxAge: 15 * 60 * 1000,
-            });
-
-            res.status(200).json({ message: 'Token rafraîchi.' });
+            res.cookie("accessToken", accessToken, accessCookieOptions);
+            res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+            res.status(200).json({ message: "Token rafraîchi." });
         } catch (err) {
-            console.error('erreur refresh:', err.message);
-            res.status(401).json({ error: 'Refresh token invalide.' });
+            next(err);
         }
-    }
+    },
 };
-
 
 export default authController;

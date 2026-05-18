@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, deleteAccount, updateProfile, changePassword, removeFavorite } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import AdCard from '../components/AdCard';
 import ReviewModal from '../components/ReviewModal';
 
-const Profile = () => {
+const Profile = (onClose) => {
     const { logout } = useAuth();
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
@@ -18,6 +18,7 @@ const Profile = () => {
     const [reviewedTransactions, setReviewedTransactions] = useState([]);
     const [form, setForm] = useState({ firstname: '', lastname: '', email: '' });
     const [pwdForm, setPwdForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    const UpdateRef = useRef(null);
 
     useEffect(() => {
         getProfile()
@@ -27,6 +28,25 @@ const Profile = () => {
             })
             .catch(console.error)
             .finally(() => setLoading(false));
+    }, []);
+
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        window.addEventListener('keydown', handleEscape);
+
+        return () => {
+            window.removeEventListener('keydown', handleEscape);
+        };
+    }, [onClose]);
+
+
+    useEffect(() => {
+        UpdateRef.current?.focus();
     }, []);
 
     const handleUpdate = async (e) => {
@@ -89,12 +109,12 @@ const Profile = () => {
             <div className="max-w-6xl mx-auto px-4 py-8 flex-1">
 
                 {success && (
-                    <div className="bg-green-50 text-green-600 text-sm text-center py-2 px-4 rounded-full mb-6">
+                    <div className="bg-green-50 text-green-600 text-xl text-center py-2 px-4 rounded-full mb-6">
                         {success}
                     </div>
                 )}
                 {error && (
-                    <div className="bg-red-50 text-red-500 text-sm text-center py-2 px-4 rounded-full mb-6">
+                    <div className="bg-red-50 text-red-500 text-xl text-center py-2 px-4 rounded-full mb-6">
                         {error}
                     </div>
                 )}
@@ -104,47 +124,51 @@ const Profile = () => {
                     {!editMode ? (
                         <div className="flex justify-between items-start">
                             <div>
-                                <p className="font-semibold text-gray-700">{profile.firstname} {profile.lastname}</p>
-                                <p className="text-sm text-gray-400 mt-1">
+                                <p className="font-semibold text-xl text-gray-700">{profile.firstname} {profile.lastname}</p>
+                                <p className="text-lg text-gray-400 mt-1">
                                     membre depuis {new Date(profile.created_at).toLocaleDateString('fr-FR')}
                                 </p>
-                                <p className="text-sm text-gray-500 mt-1">{profile.email}</p>
+                                <p className="text-xl text-gray-500 mt-1">{profile.email}</p>
                             </div>
                             <div className="flex gap-3 flex-wrap">
                                 <button onClick={() => setEditMode(true)}
-                                    className="text-sm text-gray-500 hover:text-gray-700 border border-gray-200 px-4 py-2 rounded-full">
+                                    ref={UpdateRef}
+                                    className="text-xl text-gray-700 hover:text-gray-700 w-full border border-gray-400 rounded-full px-5 py-3 bg-gray-50 focus:ring-2 focus:outline-none focus:ring-gray-400 focus:border-gray-400">
                                     Modifier le profil
                                 </button>
                                 <button onClick={() => setPwdMode(!pwdMode)}
-                                    className="text-sm text-gray-500 hover:text-gray-700 border border-gray-200 px-4 py-2 rounded-full">
+                                    className="text-gray-700 hover:text-gray-700 w-full border border-gray-400 rounded-full px-5 py-3 text-xl bg-gray-50 focus:ring-2 focus:outline-none focus:ring-gray-400 focus:border-gray-400">
                                     Changer le mot de passe
                                 </button>
                                 <button onClick={handleDelete}
-                                    className="text-sm text-red-400 hover:text-red-600 border border-red-200 px-4 py-2 rounded-full">
+                                    className="text-xl text-red-400 hover:text-red-600 border border-red-400 px-5 py-3 rounded-full focus:ring-2 focus:outline-none focus:ring-red-400 focus:border-red-400">
                                     Supprimer le compte
                                 </button>
                             </div>
                         </div>
                     ) : (
                         <form onSubmit={handleUpdate} className="flex flex-col gap-3 max-w-md">
+                            <label htmlFor="firstname" className="sr-only">Prénom</label>
                             <input type="text" value={form.firstname}
                                 onChange={(e) => setForm({ ...form, firstname: e.target.value })}
                                 placeholder="Prénom"
-                                className="border border-gray-200 rounded-full px-5 py-2 text-sm bg-gray-50 focus:outline-none" />
+                                className="border border-gray-400 rounded-full px-5 py-2 text-xl bg-gray-50 focus:ring-2 focus:outline-none focus:ring-gray-400 focus:border-gray-400" />
+                            <label htmlFor="lastname" className="sr-only">Nom</label>
                             <input type="text" value={form.lastname}
                                 onChange={(e) => setForm({ ...form, lastname: e.target.value })}
                                 placeholder="Nom"
-                                className="border border-gray-200 rounded-full px-5 py-2 text-sm bg-gray-50 focus:outline-none" />
+                                className="border border-gray-400 rounded-full px-5 py-2 text-xl bg-gray-50 focus:ring-2 focus:outline-none focus:ring-gray-400 focus:border-gray-400" />
+                            <label htmlFor="email" className="sr-only">Adresse email</label>
                             <input type="email" value={form.email}
                                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                                 placeholder="Email"
-                                className="border border-gray-200 rounded-full px-5 py-2 text-sm bg-gray-50 focus:outline-none" />
+                                className="border border-gray-400 rounded-full px-5 py-2 text-xl bg-gray-50 focus:ring-2 focus:outline-none focus:ring-gray-400 focus:border-gray-400" />
                             <div className="flex gap-3">
-                                <button type="submit" className="bg-gray-600 text-white px-6 py-2 rounded-full text-sm hover:bg-gray-700">
+                                <button type="submit" className="bg-gray-600 text-white px-6 py-2 rounded-full text-xl hover:bg-gray-700">
                                     Sauvegarder
                                 </button>
                                 <button type="button" onClick={() => setEditMode(false)}
-                                    className="text-gray-400 px-6 py-2 rounded-full text-sm border border-gray-200 hover:bg-gray-50">
+                                    className="text-gray-700 px-6 py-2 rounded-full text-xl border border-gray-500 hover:bg-gray-50 focus:ring-2 focus:outline-none focus:ring-gray-400 focus:border-gray-400">
                                     Annuler
                                 </button>
                             </div>
@@ -154,21 +178,24 @@ const Profile = () => {
                     {/* Changement de mot de passe */}
                     {pwdMode && (
                         <form onSubmit={handleChangePassword} className="flex flex-col gap-3 max-w-md mt-4 pt-4 border-t border-gray-100">
+                            <label htmlFor="password" className="sr-only">Ancien mot de passe</label>
                             <input type="password" placeholder="Ancien mot de passe" value={pwdForm.oldPassword}
                                 onChange={(e) => setPwdForm({ ...pwdForm, oldPassword: e.target.value })}
-                                className="border border-gray-200 rounded-full px-5 py-2 text-sm bg-gray-50 focus:outline-none" />
+                                className="text-gray-700 hover:text-gray-700 w-full border border-gray-500 rounded-full px-5 py-3 text-xl focus:outline-none bg-gray-50 focus:ring-2 focus:ring-gray-400 focus:border-gray-400" />
+                            <label htmlFor="Newpassword" className="sr-only">Nouveau mot de passe</label>
                             <input type="password" placeholder="Nouveau mot de passe" value={pwdForm.newPassword}
                                 onChange={(e) => setPwdForm({ ...pwdForm, newPassword: e.target.value })}
-                                className="border border-gray-200 rounded-full px-5 py-2 text-sm bg-gray-50 focus:outline-none" />
+                                className="text-gray-700 hover:text-gray-700 w-full border border-gray-500 rounded-full px-5 py-3 text-xl focus:outline-none bg-gray-50 focus:ring-2 focus:ring-gray-400 focus:border-gray-400" />
+                            <label htmlFor="RepeatNewpassword" className="sr-only">Confirmer le nouveau mot de passe</label>
                             <input type="password" placeholder="Confirmer le nouveau mot de passe" value={pwdForm.confirmPassword}
                                 onChange={(e) => setPwdForm({ ...pwdForm, confirmPassword: e.target.value })}
-                                className="border border-gray-200 rounded-full px-5 py-2 text-sm bg-gray-50 focus:outline-none" />
+                                className="text-gray-700 hover:text-gray-700 w-full border border-gray-500 rounded-full px-5 py-3 text-xl focus:outline-none bg-gray-50 focus:ring-2 focus:ring-gray-400 focus:border-gray-400" />
                             <div className="flex gap-3">
-                                <button type="submit" className="bg-gray-600 text-white px-6 py-2 rounded-full text-sm hover:bg-gray-700">
+                                <button type="submit" className="bg-gray-600 text-white px-6 py-2 rounded-full text-xl hover:bg-gray-700">
                                     Modifier
                                 </button>
                                 <button type="button" onClick={() => setPwdMode(false)}
-                                    className="text-gray-400 px-6 py-2 rounded-full text-sm border border-gray-200 hover:bg-gray-50">
+                                    className="text-gray-700 px-6 py-2 rounded-full text-xl border border-gray-400 hover:bg-gray-50">
                                     Annuler
                                 </button>
                             </div>
@@ -185,7 +212,7 @@ const Profile = () => {
                         ))}
                     </div>
                 ) : (
-                    <p className="text-gray-400 text-sm mb-8">Vous n'avez pas encore d'annonces.</p>
+                    <p className="text-gray-400 text-xl mb-8">Vous n'avez pas encore d'annonces.</p>
                 )}
 
                 {/* Mes favoris */}
@@ -212,7 +239,7 @@ const Profile = () => {
                         ))}
                     </div>
                 ) : (
-                    <p className="text-gray-400 text-sm mb-8">Vous n'avez pas encore de favoris.</p>
+                    <p className="text-gray-400 text-xl mb-8">Vous n'avez pas encore de favoris.</p>
                 )}
 
                 {/* Mes achats */}
@@ -233,7 +260,7 @@ const Profile = () => {
                                 {/* Infos */}
                                 <div className="flex-1">
                                     <p className="font-medium text-gray-700">{t.ad_title}</p>
-                                    <p className="text-sm text-gray-400">{new Date(t.created_at).toLocaleDateString('fr-FR')}</p>
+                                    <p className="text-xl text-gray-400">{new Date(t.created_at).toLocaleDateString('fr-FR')}</p>
                                 </div>
 
                                 {/* Statut + prix + avis */}
@@ -261,7 +288,7 @@ const Profile = () => {
                         ))}
                     </div>
                 ) : (
-                    <p className="text-gray-400 text-sm mb-8">Vous n'avez pas encore d'achats.</p>
+                    <p className="text-gray-400 text-xl mb-8">Vous n'avez pas encore d'achats.</p>
                 )}
             </div>
 

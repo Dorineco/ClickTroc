@@ -10,6 +10,7 @@ const LoginModal = ({ onClose, onSwitchToRegister }) => {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const emailRef = useRef(null);
+    const LoginStyle = "w-full border border-gray-200 rounded-full px-5 py-3 text-xl bg-gray-50 focus:ring-2 focus:outline-none focus:ring-gray-400 focus:border-gray-400";
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -68,13 +69,16 @@ const LoginModal = ({ onClose, onSwitchToRegister }) => {
                 <h2 id="login-title"></h2>
                 {/* Colonne gauche — formulaire */}
                 <div className="flex-1 p-10 flex flex-col justify-center">
-                    <button onClick={onClose} className=" text-red-700 hover:text-red-600">✕</button>
+
+
+
                     <h2 className="text-2xl font-semibold text-gray-700 mb-8 text-center">
                         Se connecter
                     </h2>
 
+
                     {error && (
-                        <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+                        <p className="text-red-500 text-xl text-center mb-4">{error}</p>
                     )}
 
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -95,8 +99,7 @@ const LoginModal = ({ onClose, onSwitchToRegister }) => {
                                 onChange={handleChange}
                                 required
                                 ref={emailRef}
-                                className="w-full border border-gray-200 rounded-full px-5 py-3 text-sm bg-gray-50
-                focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                                className={LoginStyle}
                             />
                         </div>
 
@@ -115,8 +118,7 @@ const LoginModal = ({ onClose, onSwitchToRegister }) => {
                                 value={form.password}
                                 onChange={handleChange}
                                 required
-                                className="w-full border border-gray-200 rounded-full px-5 py-3 pr-12 text-sm bg-gray-50
-                focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                                className={LoginStyle}
                             />
 
                             <button
@@ -136,7 +138,7 @@ const LoginModal = ({ onClose, onSwitchToRegister }) => {
 
                         <a
                             href="/forgot-password"
-                            className="text-sm text-gray-500 text-right hover:text-red-600"
+                            className="text-xl text-gray-500 text-right hover:text-red-600"
                         >
                             Mot de passe oublié ?
                         </a>
@@ -144,22 +146,15 @@ const LoginModal = ({ onClose, onSwitchToRegister }) => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 rounded-full
+                            className="bg-gray-600 hover:bg-gray-700 text-xl text-white font-medium py-3 rounded-full
                 transition-colors disabled:opacity-50 mt-2"
                         >
                             {loading ? "Connexion..." : "Connectez-vous"}
                         </button>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            aria-label="Fermer la fenêtre"
-                            className="absolute top-4 right-4"
-                        >
-                            ✕
-                        </button>
+
                     </form>
 
-                    <p className="text-sm text-center mt-6 text-gray-500">
+                    <p className="text-xl text-center mt-6 text-gray-500">
                         Vous n'avez pas de compte ?{' '}
                         <button
                             onClick={onSwitchToRegister}
@@ -172,6 +167,21 @@ const LoginModal = ({ onClose, onSwitchToRegister }) => {
 
                 {/* Colonne droite — image */}
                 <div className="hidden md:flex w-72 relative items-center justify-center bg-gray-100 p-6">
+
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Fermer"
+                        className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center
+                        text-gray-400 hover:text-gray-700 hover:bg-gray-100
+                        focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500
+                        transition-colors"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
                     <div className="rounded-2xl overflow-hidden w-full h-80 relative">
                         <img
                             src="/hero.jpg"
@@ -180,7 +190,8 @@ const LoginModal = ({ onClose, onSwitchToRegister }) => {
                         />
                         <div className="absolute inset-0 bg-black/20 flex flex-col items-center justify-center text-white">
                             <span className="text-3xl font-bold">Click&amp;Troc</span>
-                            <span className="text-sm italic mt-1">le site des petites annonces locales</span>
+                            <span className="text-ms italic mt-1">le site des petites annonces locales</span>
+
                         </div>
                     </div>
                 </div>

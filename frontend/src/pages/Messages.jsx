@@ -40,7 +40,7 @@ const Messages = () => {
                     <h1 className="text-xl italic text-gray-600 mb-6">Mes messages</h1>
     
                     {conversations.length === 0 ? (
-                        <p className="text-gray-400 text-sm text-center py-12">
+                        <p className="text-gray-400 text-xl text-center py-12">
                             Vous n'avez pas encore de messages.
                         </p>
                     ) : (
@@ -65,10 +65,10 @@ const Messages = () => {
     
                                         {/* Contenu */}
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-semibold text-gray-700">
+                                            <p className="text-xl font-semibold text-gray-700">
                                                 {interlocutors[interlocutorId] || `Utilisateur #${interlocutorId}`}
                                             </p>
-                                            <p className="text-sm text-gray-400 truncate">
+                                            <p className="text-xl text-gray-400 truncate">
                                                 {isMe ? 'Vous : ' : ''}{lastMessage.content}
                                             </p>
                                         </div>

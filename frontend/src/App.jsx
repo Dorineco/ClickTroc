@@ -70,7 +70,7 @@ const App = () => {
               <span className="text-xl font-bold text-gray-600">
                 Click&Troc 2026
               </span>
-              <div className="flex gap-6 text-sm italic text-gray-500">
+              <div className="flex gap-6 text-xl italic text-gray-500">
                 <a href="#" className="hover:text-gray-700">vie privée et cookies</a>
                 <a href="#" className="hover:text-gray-700">mentions légales</a>
                 <a href="#" className="hover:text-gray-700">Conditions générales de vente</a>

@@ -180,7 +180,7 @@ const AdDetail = ({ onLoginClick }) => {
                                     {ad.firstname ? `${ad.firstname} ${ad.lastname}` : 'Vendeur'}
                                 </p>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-sm text-gray-500">avis</span>
+                                    <span className="text-xl text-gray-500">avis</span>
                                     <StarRating rating={averageRating} />
                                 </div>
                             </div>
@@ -199,7 +199,7 @@ const AdDetail = ({ onLoginClick }) => {
                             ) : (
                                 <>
                                     <button onClick={handleFavorite}
-                                        className={`text-sm ${favorited ? 'text-red-500' : 'text-gray-400 hover:text-red-400'} transition-colors`}>
+                                        className={`text-xl ${favorited ? 'text-red-500' : 'text-gray-400 hover:text-red-400'} transition-colors`}>
                                         {favorited ? '♥ Ajouté aux favoris' : '♡ Ajouter aux favoris'}
                                     </button>
                                     <button onClick={handleContact}
@@ -219,10 +219,10 @@ const AdDetail = ({ onLoginClick }) => {
                 {/* Description */}
                 <div className="bg-gray-100 rounded-2xl p-6 mb-8">
                     <h2 className="font-bold text-gray-700 mb-3">{ad.title}</h2>
-                    <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                    <p className="text-gray-600 text-xl leading-relaxed mb-4">
                         {ad.description || 'Aucune description.'}
                     </p>
-                    <div className="flex gap-6 text-sm text-gray-600">
+                    <div className="flex gap-6 text-xl text-gray-600">
                         <p><span className="font-semibold">prix</span> — {Number(ad.price).toLocaleString('fr-FR')} €</p>
                         <p><span className="font-semibold">publiée le</span> — {new Date(ad.created_at).toLocaleDateString('fr-FR')}</p>
                         {ad.town_name && <p><span className="font-semibold">ville</span> — {ad.town_name}</p>}
