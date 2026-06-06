@@ -33,9 +33,9 @@ const profileService = {
                 err.status = 409;
                 throw err;
             }
-        } // ← le if se ferme ici
+        }
 
-        // ProfileDAO.update est TOUJOURS appelé
+       
         const updated = await ProfileDAO.update(user_id, data);
         if (!updated) {
             const err = new Error('Aucune modification effectuée.');

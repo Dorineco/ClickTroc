@@ -10,7 +10,6 @@ const REFRESH_TOKEN_EXPIRES = "7d";
 const RESET_TOKEN_EXPIRES_MS = 60 * 60 * 1000;
 
 
-
 function createAuthTokens(userId) {
     const accessToken = jwt.sign(
         { id: userId },
@@ -140,7 +139,7 @@ const authService = {
 
         await authDAO.saveResetToken(user.id, resetToken, expires);
 
-  
+
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
         await transporter.sendMail({

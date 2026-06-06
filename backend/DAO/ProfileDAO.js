@@ -36,8 +36,6 @@ export default class ProfileDAO {
         const fields = [];
         const values = [];
 
-        console.log('DAO update appelé avec:', user_id, data);
-
         if (data.email !== undefined) {
             fields.push('email = ?');
             values.push(data.email);
@@ -55,9 +53,7 @@ export default class ProfileDAO {
             values.push(data.town_id);
         }
 
-        console.log('fields:', fields); // ← et ça
-        console.log('values:', values);
-
+        
         if (fields.length === 0) return null;
 
         values.push(user_id);

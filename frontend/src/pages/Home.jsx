@@ -61,8 +61,9 @@ const Home = ({ onLoginClick }) => {
                 params.town_name = search.town_name;
             }
 
-            
+
             const data = await searchAds(params);
+            
             setAds(data.ads);
             setTotalPages(Math.ceil(data.total / 12));
 

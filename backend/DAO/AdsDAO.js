@@ -22,10 +22,7 @@ function cacheInvalidate(pattern) {
     }
 }
 
-// ============================================================
-// Sous-requête réutilisable pour la première image
-// Remplace les SELECT imbriqués N+1 par un seul LEFT JOIN
-// ============================================================
+
 const IMAGE_JOIN = `
     LEFT JOIN (
         SELECT ad_id, MIN(image_url) AS image_url
@@ -65,7 +62,9 @@ export default class AdsDAO {
             SELECT ads.*,
                 users.firstname,
                 users.lastname,
-                towns.name AS town_name
+                towns.name AS town_name,
+                towns.latitude,
+                towns.longitude
             FROM ads
             JOIN users ON ads.user_id = users.id
             LEFT JOIN towns ON ads.town_id = towns.id
@@ -75,7 +74,7 @@ export default class AdsDAO {
         if (!rows[0]) return null;
 
         // Pour le détail d'une annonce on récupère TOUTES les images
-        
+
         const [images] = await pool.query(
             'SELECT image_url FROM ad_images WHERE ad_id = ?', [id]
         );
@@ -87,10 +86,10 @@ export default class AdsDAO {
     // Créer une annonce
     // --------------------------------------------------------
     static async create(annonce) {
-        const { title, description, price, user_id, category_id, latitude, longitude, town_id } = annonce;
+        const { title, description, price, user_id, category_id, town_id } = annonce;
         const [result] = await pool.query(
-            'INSERT INTO ads (title, description, price, category_id, user_id, latitude, longitude, town_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [title, description, price, category_id, user_id, latitude || null, longitude || null, town_id || null]
+            'INSERT INTO ads (title, description, price, category_id, user_id, town_id) VALUES (?, ?, ?, ?, ?, ?)',
+            [title, description, price, category_id, user_id, town_id || null]
         );
         cacheInvalidate('all_ads');
         return result.insertId;
@@ -142,9 +141,9 @@ export default class AdsDAO {
         const fields = [];
         const values = [];
 
-        if (data.title !== undefined)       { fields.push("title = ?");       values.push(data.title); }
+        if (data.title !== undefined) { fields.push("title = ?"); values.push(data.title); }
         if (data.description !== undefined) { fields.push("description = ?"); values.push(data.description); }
-        if (data.price !== undefined)       { fields.push("price = ?");       values.push(data.price); }
+        if (data.price !== undefined) { fields.push("price = ?"); values.push(data.price); }
         if (data.category_id !== undefined) { fields.push("category_id = ?"); values.push(data.category_id); }
 
         if (fields.length === 0) return null;
@@ -220,14 +219,14 @@ export default class AdsDAO {
             distanceSelect = `,
                 (6371 * acos(
                     LEAST(1, cos(radians(${searchLat}))
-                    * cos(radians(ads.latitude))
-                    * cos(radians(ads.longitude) - radians(${searchLng}))
+                    * cos(radians(towns.latitude))
+                    * cos(radians(towns.longitude) - radians(${searchLng}))
                     + sin(radians(${searchLat}))
-                    * sin(radians(ads.latitude)))
+                    * sin(radians(towns.latitude)))
                 )) AS distance`;
             havingClause = `HAVING distance <= ${Number(distance)}`;
-            conditions.push('ads.latitude IS NOT NULL');
-            conditions.push('ads.longitude IS NOT NULL');
+            conditions.push('towns.latitude IS NOT NULL');
+            conditions.push('towns.longitude IS NOT NULL');
         } else if (town_name) {
             conditions.push('towns.name LIKE ?');
             values.push(`%${town_name}%`);
@@ -235,9 +234,9 @@ export default class AdsDAO {
 
         const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
         const orderClause =
-            sortBy === 'price_asc'  ? 'ORDER BY ads.price ASC' :
-            sortBy === 'price_desc' ? 'ORDER BY ads.price DESC' :
-                                    'ORDER BY ads.created_at DESC';
+            sortBy === 'price_asc' ? 'ORDER BY ads.price ASC' :
+                sortBy === 'price_desc' ? 'ORDER BY ads.price DESC' :
+                    'ORDER BY ads.created_at DESC';
         const offset = (page - 1) * limit;
 
         const [rows] = await pool.query(
